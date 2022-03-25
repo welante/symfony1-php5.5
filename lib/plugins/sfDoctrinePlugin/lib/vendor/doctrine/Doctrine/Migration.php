@@ -124,19 +124,20 @@ class Doctrine_Migration
      * Load migration classes from the passed directory. Any file found with a .php
      * extension will be passed to the loadMigrationClass()
      *
-     * @param string $directory Directory to load migration classes from
+     * @param string|null $directory Directory to load migration classes from
+     *
+     * @throws ReflectionException
      * @return void
      */
-    public function loadMigrationClassesFromDirectory($directory = null)
+    public function loadMigrationClassesFromDirectory(?string $directory = null)
     {
-        $directory = $directory ? $directory:$this->_migrationClassesDirectory;
+        $directory = $directory ?? $this->_migrationClassesDirectory;
 
-        $classesToLoad = array();
+        $classesToLoad = [];
         $classes = get_declared_classes();
-        foreach ((array) $directory as $dir) {
-            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
-                RecursiveIteratorIterator::LEAVES_ONLY,
-                RecursiveIteratorIterator::CATCH_GET_CHILD);
+        
+      foreach ((array)$directory as $dir) {
+            $files = scandir($dir);
 
             if (isset(self::$_migrationClassesForDirectories[$dir])) {
                 foreach (self::$_migrationClassesForDirectories[$dir] as $num => $className) {
@@ -144,24 +145,33 @@ class Doctrine_Migration
                 }
             }
 
-            foreach ($it as $file) {
-                $info = pathinfo($file->getFileName());
+            foreach ($files as $file) {
+                if (in_array($file, ['.', '..'])) {
+                    continue;
+                }
+
+                $file_path = "$dir/$file";
+
+                $info = pathinfo($file_path);
+
                 if (isset($info['extension']) && $info['extension'] == 'php') {
-                    require_once($file->getPathName());
+                    require_once($file_path);
 
                     $array = array_diff(get_declared_classes(), $classes);
                     $className = end($array);
 
                     if ($className) {
-                        $e = explode('_', $file->getFileName());
+                        $e = explode('_', $file);
                         $timestamp = $e[0];
 
-                        $classesToLoad[$timestamp] = array('className' => $className, 'path' => $file->getPathName());
+                        $classesToLoad[$timestamp] = ['className' => $className, 'path' => $file_path];
                     }
                 }
             }
         }
+
         ksort($classesToLoad, SORT_NUMERIC);
+
         foreach ($classesToLoad as $class) {
             $this->loadMigrationClass($class['className'], $class['path']);
         }
