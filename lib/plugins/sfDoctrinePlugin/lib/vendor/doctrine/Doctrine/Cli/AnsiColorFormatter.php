@@ -115,7 +115,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     {
         $width = 9 + strlen($this->format('', 'INFO'));
 
-        return sprintf(">> %-${width}s %s", $this->format($section, 'INFO'), $this->excerpt($text, $size));
+        return sprintf(">> %-" . $width . "s %s", $this->format($section, 'INFO'), $this->excerpt($text, $size));
     }
 
     /**
@@ -129,7 +129,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     public function excerpt($text, $size = null)
     {
         if ( ! $size) {
-            $size = $this->size;
+            $size = $this->_size;
         }
 
         if (strlen($text) < $size) {
