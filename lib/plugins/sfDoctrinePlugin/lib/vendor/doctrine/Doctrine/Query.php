@@ -284,7 +284,8 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
             return $collection;
         }
 
-        if (count($collection) === 0) {
+        // HYDRATE_SINGLE_SCALAR returns null when there is no row (null is not is_scalar)
+        if ($collection === null || count($collection) === 0) {
             return false;
         }
 
