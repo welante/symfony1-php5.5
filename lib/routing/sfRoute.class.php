@@ -235,7 +235,7 @@ class sfRoute
       uasort($variables, array('sfRoute', 'generateCompareVarsByStrlen'));
       foreach ($variables as $variable => $value)
       {
-        $url = str_replace($value, urlencode($tparams[$variable]), $url);
+        $url = str_replace($value, urlencode((string) $tparams[$variable]), $url);
       }
 
       if(!in_array($this->suffix, $this->options['segment_separators']))
@@ -284,7 +284,7 @@ class sfRoute
         case 'variable':
           if (!$optional || !isset($this->defaults[$token[3]]) || $parameters[$token[3]] != $this->defaults[$token[3]])
           {
-            $url[] = urlencode($parameters[$token[3]]);
+            $url[] = urlencode((string) $parameters[$token[3]]);
             $optional = false;
           }
           break;
@@ -751,12 +751,12 @@ class sfRoute
       {
         foreach ($value as $v)
         {
-          $tmp[] = $key.'='.urlencode($v);
+          $tmp[] = $key.'='.urlencode((string) $v);
         }
       }
       else
       {
-        $tmp[] = urlencode($key).'/'.urlencode($value);
+        $tmp[] = urlencode((string) $key).'/'.urlencode((string) $value);
       }
     }
     $tmp = implode('/', $tmp);
