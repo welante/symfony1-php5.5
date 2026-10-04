@@ -258,6 +258,11 @@ class sfDebug
    */
   static public function shortenFilePath($file)
   {
+    if (!$file)
+    {
+      return $file;
+    }
+
     foreach (array('sf_root_dir', 'sf_symfony_lib_dir') as $key)
     {
       if (0 === strpos($file, $value = sfConfig::get($key)))

@@ -74,7 +74,7 @@ class sfCacheSessionStorage extends sfStorage
 
     $cookie = $this->request->getCookie($this->options['session_name']);
 
-    if(strpos($cookie, ':') !== false)
+    if($cookie && strpos($cookie, ':') !== false)
     {
       // split cookie data id:signature(id+secret)
       list($id, $signature) = explode(':', $cookie, 2);
