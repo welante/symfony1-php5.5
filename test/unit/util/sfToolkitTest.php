@@ -10,7 +10,7 @@
 
 require_once(dirname(__FILE__).'/../../bootstrap/unit.php');
 
-$t = new lime_test(93);
+$t = new lime_test(94);
 
 // ::stringToArray()
 $t->diag('::stringToArray()');
@@ -32,6 +32,8 @@ foreach ($tests as $string => $attributes)
 {
   $t->is(sfToolkit::stringToArray($string), $attributes, '->stringToArray()');
 }
+
+$t->is(sfToolkit::stringToArray(null), array(), '->stringToArray() can accept a null value');
 
 // ::isUTF8()
 $t->diag('::isUTF8()');
