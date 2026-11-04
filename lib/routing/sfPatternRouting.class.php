@@ -151,6 +151,12 @@ class sfPatternRouting extends sfRouting
    */
   public function getRoutes()
   {
+    // Materialize lazy-serialized routes so callers always get sfRoute objects
+    foreach (array_keys($this->routes) as $name)
+    {
+      $this->getRoute($name);
+    }
+
     return $this->routes;
   }
 
