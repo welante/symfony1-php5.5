@@ -126,7 +126,7 @@ class sfValidatorFile extends sfValidatorBase
     switch ($value['error'])
     {
       case UPLOAD_ERR_INI_SIZE:
-        $max = ini_get('upload_max_filesize');
+        $max = $this->getMaxFilesize();
         if ($this->getOption('max_size'))
         {
           $max = min($max, $this->getOption('max_size'));
@@ -253,8 +253,9 @@ class sfValidatorFile extends sfValidatorBase
   protected function guessFromFileBinary($file)
   {
     ob_start();
-    //need to use --mime instead of -i. see #6641
-    passthru(sprintf('file -b --mime %s 2>/dev/null', escapeshellarg($file)), $return);
+    // need to use --mime instead of -i. see #6641
+    // "--" stops option parsing so paths that start with "-" are not treated as options
+    passthru(sprintf('file -b --mime -- %s 2>/dev/null', escapeshellarg($file)), $return);
     if ($return > 0)
     {
       ob_end_clean();
@@ -270,6 +271,37 @@ class sfValidatorFile extends sfValidatorBase
     }
 
     return $match[1];
+  }
+
+  /**
+   * Returns the maximum size of an uploaded file as configured in php.ini.
+   *
+   * @return int The maximum size of an uploaded file in bytes
+   */
+  protected function getMaxFilesize()
+  {
+    $max = trim(ini_get('upload_max_filesize'));
+
+    if ('' === $max)
+    {
+      return PHP_INT_MAX;
+    }
+
+    $value = (int) $max;
+
+    switch (strtolower(substr($max, -1)))
+    {
+      case 'g':
+        $value *= 1024;
+        // no break
+      case 'm':
+        $value *= 1024;
+        // no break
+      case 'k':
+        $value *= 1024;
+    }
+
+    return (int) $value;
   }
 
   protected function getMimeTypesFromCategory($category)
